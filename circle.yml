@@ -3,6 +3,7 @@
 machine:
   environment:
     PROJECT_NAME: spair-api
+    SERVICE_NAME: hello
     CLUSTER_NAME: edissons-cluster
     CLOUDSDK_COMPUTE_ZONE: us-central1-f
   services:
@@ -18,18 +19,19 @@ dependencies:
     - sudo /opt/google-cloud-sdk/bin/gcloud config set container/cluster $CLUSTER_NAME
     - sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
     - sudo /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials $CLUSTER_NAME
-    - docker build -t us.gcr.io/${PROJECT_NAME}/hello:$CIRCLE_SHA1 .
-    - docker tag us.gcr.io/${PROJECT_NAME}/hello:$CIRCLE_SHA1 us.gcr.io/${PROJECT_NAME}/hello:latest
+    - docker build -t us.gcr.io/${PROJECT_NAME}/${SERVICE_NAME}:$CIRCLE_SHA1 .
+    - docker tag us.gcr.io/${PROJECT_NAME}/${SERVICE_NAME}:$CIRCLE_SHA1 us.gcr.io/${PROJECT_NAME}/${SERVICE_NAME}:latest
     - cp ${HOME}/gcloud-service-key.json ${HOME}/.config/gcloud/application_default_credentials.json
+
 test:
   override:
-    - docker run us.gcr.io/${PROJECT_NAME}/hello:$CIRCLE_SHA1 npm test
+    - docker run us.gcr.io/${PROJECT_NAME}/${SERVICE_NAME}:$CIRCLE_SHA1 npm test
 
 deployment:
   production:
     branch: master
     # tag: /v[0-9]+(\.[0-9]+)*/
     commands:
-      - sudo /opt/google-cloud-sdk/bin/gcloud docker push us.gcr.io/${PROJECT_NAME}/hello
+      - sudo /opt/google-cloud-sdk/bin/gcloud docker push us.gcr.io/${PROJECT_NAME}/${SERVICE_NAME}
       - sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
-      - kubectl patch -f kubernetes/deploy-staging.yml -p '{"spec":{"template":{"spec":{"containers":[{"name":"app","image":"us.gcr.io/spair-api/'"$PROJECT_NAME"':'"$CIRCLE_SHA1"'"}]}}}}'
+      - kubectl patch -f kubernetes/deploy-staging.yml -p '{"spec":{"template":{"spec":{"containers":[{"name":"app","image":"us.gcr.io/'"$PROJECT_NAME"'/'"$SERVICE_NAME"':'"$CIRCLE_SHA1"'"}]}}}}'
