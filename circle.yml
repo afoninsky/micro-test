@@ -15,12 +15,12 @@ dependencies:
     - echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
     - sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
     - sudo /opt/google-cloud-sdk/bin/gcloud config set project $PROJECT_NAME
-    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet config set container/cluster $CLUSTER_NAME
+    - sudo /opt/google-cloud-sdk/bin/gcloud config set container/cluster $CLUSTER_NAME
     - sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
-    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet container clusters get-credentials $CLUSTER_NAME
+    - sudo /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials $CLUSTER_NAME
     - docker build -t us.gcr.io/${PROJECT_NAME}/hello:$CIRCLE_SHA1 .
     - docker tag us.gcr.io/${PROJECT_NAME}/hello:$CIRCLE_SHA1 us.gcr.io/${PROJECT_NAME}/hello:latest
-
+    - cp ${HOME}/gcloud-service-key.json ${HOME}/.config/gcloud/application_default_credentials.json
 test:
   override:
     - docker run us.gcr.io/${PROJECT_NAME}/hello:$CIRCLE_SHA1 npm test
@@ -30,4 +30,6 @@ deployment:
     branch: master
     # tag: /v[0-9]+(\.[0-9]+)*/
     commands:
-      - ./deploy.sh
+      - sudo /opt/google-cloud-sdk/bin/gcloud docker push us.gcr.io/${PROJECT_NAME}/hello
+      - sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
+      - kubectl patch -f kubernetes/deploy-staging.yml -p '{"spec":{"template":{"spec":{"containers":[{"name":"app","image":"us.gcr.io/spair-api/'"$PROJECT_NAME"':'"$CIRCLE_SHA1"'"}]}}}}'
