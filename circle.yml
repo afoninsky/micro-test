@@ -1,9 +1,9 @@
-# CIRCLE_PROJECT_REPONAME
+# CIRCLE_TAG
+#
 # GCLOUD_SERVICE_KEY = base64 <your-service-account.json>
 machine:
   environment:
     PROJECT_NAME: spair-api
-    SERVICE_NAME: hello
     CLUSTER_NAME: edissons-cluster
     CLOUDSDK_COMPUTE_ZONE: us-central1-f
   services:
@@ -19,19 +19,36 @@ dependencies:
     - sudo /opt/google-cloud-sdk/bin/gcloud config set container/cluster $CLUSTER_NAME
     - sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
     - sudo /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials $CLUSTER_NAME
-    - docker build -t us.gcr.io/${PROJECT_NAME}/${SERVICE_NAME}:$CIRCLE_SHA1 .
-    - docker tag us.gcr.io/${PROJECT_NAME}/${SERVICE_NAME}:$CIRCLE_SHA1 us.gcr.io/${PROJECT_NAME}/${SERVICE_NAME}:latest
+    - docker build -t us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1 .
+    - docker tag us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1 us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:latest
     - cp ${HOME}/gcloud-service-key.json ${HOME}/.config/gcloud/application_default_credentials.json
 
 test:
   override:
-    - docker run us.gcr.io/${PROJECT_NAME}/${SERVICE_NAME}:$CIRCLE_SHA1 npm test
+    - docker run us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1 npm test
+  post:
+    - /node_modules/.bin/nyc report --reporter clover && cat coverage/clover.xml
 
 deployment:
   production:
     branch: master
     # tag: /v[0-9]+(\.[0-9]+)*/
     commands:
-      - sudo /opt/google-cloud-sdk/bin/gcloud docker push us.gcr.io/${PROJECT_NAME}/${SERVICE_NAME}
+      - sudo /opt/google-cloud-sdk/bin/gcloud docker push us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME
       - sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
-      - kubectl patch -f kubernetes/deploy-staging.yml -p '{"spec":{"template":{"spec":{"containers":[{"name":"app","image":"us.gcr.io/'"$PROJECT_NAME"'/'"$SERVICE_NAME"':'"$CIRCLE_SHA1"'"}]}}}}'
+      - kubectl patch -f kubernetes/deploy-staging.yml -p '{"spec":{"template":{"spec":{"containers":[{"name":"app","image":"us.gcr.io/'"$PROJECT_NAME"'/'"$CIRCLE_PROJECT_REPONAME"':'"$CIRCLE_SHA1"'"}]}}}}'
+
+# POST:
+# {
+#   "payload": {
+#     "vcs_url" : "https://github.com/circleci/mongofinil",
+#     "build_url" : "https://circleci.com/gh/circleci/mongofinil/22",
+#     "build_num" : 22,
+#     "branch" : "master",
+#     ...
+#   }
+# }
+# notify:
+  # webhooks:
+    # A list of hook hashes, containing the URL field
+    # - url: https://example.com/hooks/circle
