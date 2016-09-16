@@ -1,23 +1,23 @@
+# CIRCLE_PROJECT_REPONAME
+# GCLOUD_SERVICE_KEY = base64 <your-service-account.json>
 machine:
   environment:
     PROJECT_NAME: spair-api
     CLUSTER_NAME: edissons-cluster
     CLOUDSDK_COMPUTE_ZONE: us-central1-f
-    DEBIAN_FRONTEND: noninteractive
-    PATH: "/opt/google-cloud-sdk/bin/:${PATH}"
   services:
     - docker
 
 dependencies:
   pre:
-    - sudo gcloud --quiet components update
-    - sudo gcloud --quiet components update kubectl
-    - echo $ACCT_AUTH | base64 --decode -i > ${HOME}/account-auth.json
-    - sudo gcloud auth activate-service-account --key-file ${HOME}/account-auth.json
-    - sudo cloud config set project $PROJECT_NAME
-    - sudo /gcloud --quiet config set container/cluster $CLUSTER_NAME
-    - sudo gcloud config set compute/zone ${CLOUDSDK_COMPUTE_ZONE}
-    - sudo gcloud --quiet container clusters get-credentials $CLUSTER_NAME
+    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
+    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update kubectl
+    - echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
+    - sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+    - sudo /opt/google-cloud-sdk/bin/gcloud config set project $PROJECT_NAME
+    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet config set container/cluster $CLUSTER_NAME
+    - sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
+    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet container clusters get-credentials $CLUSTER_NAME
     - docker build -t us.gcr.io/${PROJECT_NAME}/hello:$CIRCLE_SHA1 .
     - docker tag us.gcr.io/${PROJECT_NAME}/hello:$CIRCLE_SHA1 us.gcr.io/${PROJECT_NAME}/hello:latest
 
