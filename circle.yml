@@ -9,7 +9,7 @@ machine:
     - docker
 
 dependencies:
-  pre:
+  override:
     - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
     - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update kubectl
     - echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
@@ -22,11 +22,12 @@ dependencies:
     - docker tag us.gcr.io/${PROJECT_NAME}/hello:$CIRCLE_SHA1 us.gcr.io/${PROJECT_NAME}/hello:latest
 
 test:
-  post:
+  override:
     - docker run us.gcr.io/${PROJECT_NAME}/hello:$CIRCLE_SHA1 npm test
 
 deployment:
-  prod:
+  production:
     branch: master
+    # tag: /v[0-9]+(\.[0-9]+)*/
     commands:
       - ./deploy.sh
