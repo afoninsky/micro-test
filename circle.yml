@@ -3,8 +3,8 @@ machine:
     VERSION: $(echo ${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`})
 dependencies:
   override:
-    - echo 'export SOMETEST=blabla' > .circlecirc
-    - echo 'export SOMETEST=blabla' > circlecirc
+    - echo 'export SOMETEST=blabla' > ~/.circlecirc
+    - echo 'export SOMETEST=blabla' > ~/circlecirc
 test:
   override:
     - echo $SOMETEST
