@@ -1,39 +1,9 @@
-# CIRCLE_TAG
-#
-# GCLOUD_SERVICE_KEY = base64 <your-service-account.json>
 machine:
   environment:
-    PROJECT_NAME: spair-api
-    CLUSTER_NAME: edissons-cluster
-    CLOUDSDK_COMPUTE_ZONE: us-central1-f
-  services:
-    - docker
-
+    VERSION: ${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}
 dependencies:
   override:
-    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
-    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update kubectl
-    - echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
-    - sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
-    - sudo /opt/google-cloud-sdk/bin/gcloud config set project $PROJECT_NAME
-    - sudo /opt/google-cloud-sdk/bin/gcloud config set container/cluster $CLUSTER_NAME
-    - sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
-    - sudo /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials $CLUSTER_NAME
-    - docker build -t us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1 .
-    - docker tag us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1 us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:latest
-    - cp ${HOME}/gcloud-service-key.json ${HOME}/.config/gcloud/application_default_credentials.json
-
+    - echo test default var: $CIRCLE_SHA1, ${CIRCLE_SHA1}
+    - echo test version: $VERSION, ${VERSION}
 test:
-  override:
-    - docker run us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1 npm test
-  # post:
-  # - /node_modules/.bin/nyc report --reporter clover && cat coverage/clover.xml
-
-deployment:
-  production:
-    branch: master
-    # tag: /v[0-9]+(\.[0-9]+)*/
-    commands:
-      - sudo /opt/google-cloud-sdk/bin/gcloud docker push us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME
-      - sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
-      - kubectl patch --namespace=staging -f deployment.yml -p '{"spec":{"template":{"spec":{"containers":[{"name":"app","image":"us.gcr.io/'"$PROJECT_NAME"'/'"$CIRCLE_PROJECT_REPONAME"':'"$CIRCLE_SHA1"'"}]}}}}'
+    - pwd
