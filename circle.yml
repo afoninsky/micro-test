@@ -3,10 +3,9 @@ machine:
     VERSION: $(echo ${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`})
 dependencies:
   override:
-    - echo test default var: $CIRCLE_SHA1, ${CIRCLE_SHA1}
-    - echo test version: $VERSION, ${VERSION}
+    - echo VERSION
 test:
   override:
-    - export VERSION=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}
-    - echo VERSION
+    - export VERSION2=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}
+    - echo VERSION2
     - pwd
