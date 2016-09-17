@@ -6,4 +6,7 @@ dependencies:
     - echo test default var: $CIRCLE_SHA1, ${CIRCLE_SHA1}
     - echo test version: $VERSION, ${VERSION}
 test:
+  override:
+    - export VERSION=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}
+    - echo VERSION
     - pwd
