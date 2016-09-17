@@ -1,6 +1,3 @@
-machine:
-  environment:
-    VERSION: $(echo ${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`})
 dependencies:
   pre:
     - echo 'export SOMETEST=blabla' > ${HOME}/.circlerc
