@@ -5,7 +5,7 @@ machine:
   environment:
     PROJECT_NAME: spair-api
     CLUSTER_NAME: edissons-cluster
-    # CLOUDSDK_CвOMPUTE_ZONE: us-central1-f
+    CLOUDSDK_COMPUTE_ZONE: us-central1-f
   services:
     - docker
 
@@ -17,7 +17,7 @@ dependencies:
     - sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
     - sudo /opt/google-cloud-sdk/bin/gcloud config set project $PROJECT_NAME
     - sudo /opt/google-cloud-sdk/bin/gcloud config set container/cluster $CLUSTER_NAME
-    # - sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
+    - sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
     - sudo /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials $CLUSTER_NAME
     - docker build -t us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1 .
     - docker tag us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1 us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:latest
