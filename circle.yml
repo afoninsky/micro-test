@@ -6,7 +6,7 @@ machine:
     PROJECT_NAME: spair-api
     CLUSTER_NAME: edissons-cluster
     CLOUDSDK_COMPUTE_ZONE: us-central1-f
-    PATH: $PATH:/opt/google-cloud-sdk/bin/
+    PATH: <%= ENV['path'] %>:/opt/google-cloud-sdk/bin/
   services:
     - docker
 dependencies:
