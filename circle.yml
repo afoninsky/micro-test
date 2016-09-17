@@ -12,7 +12,7 @@ dependencies:
   pre:
     # pass variable between steps
     - echo "export VERSION=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}" >> ~/.circlerc
-    - echo "export GCLOUD_SERVICE_KEY=$GCLOUD_SERVICE_KEY" >> ~/.circlerc
+    # - echo "export IMAGE_TAG=$GCLOUD_SERVICE_KEY" >> ~/.circlerc
   override:
     # auth docker with google registry, setup access to kubernetes
     - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
