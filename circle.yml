@@ -1,8 +1,8 @@
 dependencies:
   pre:
-    - echo 'export SOMETEST=blabla' > ~/.circlerc
+    - echo "export VERSION=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}"
   override:
     - pwd
 test:
   override:
-    - echo textbefore:$SOMETEST:textafter
+    - echo textbefore:$VERSION:textafter
