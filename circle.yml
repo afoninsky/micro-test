@@ -5,7 +5,6 @@ machine:
     PROJECT_NAME: spair-api
     CLUSTER_NAME: edissons-cluster
     CLOUDSDK_COMPUTE_ZONE: us-central1-f
-    PATH: $PATH:/opt/google-cloud-sdk/bin/
   services:
     - docker
 dependencies:
@@ -14,14 +13,14 @@ dependencies:
     - echo "export VERSION=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}" > ~/.circlerc
   override:
     # auth docker with google registry, setup access to kubernetes
-    - sudo gcloud --quiet components update
-    - sudo gcloud --quiet components update kubectl
+    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
+    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update kubectl
     - echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ~/gcloud-service-key.json
-    - sudo gcloud auth activate-service-account --key-file ~/gcloud-service-key.json
-    - sudo gcloud config set project $PROJECT_NAME
-    - sudo gcloud config set container/cluster $CLUSTER_NAME
-    - sudo gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
-    - sudo gcloud container clusters get-credentials $CLUSTER_NAME
+    - sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ~/gcloud-service-key.json
+    - sudo /opt/google-cloud-sdk/bin/gcloud config set project $PROJECT_NAME
+    - sudo /opt/google-cloud-sdk/bin/gcloud config set container/cluster $CLUSTER_NAME
+    - sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
+    - sudo /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials $CLUSTER_NAME
     - docker build -t $REGISTRY_URL/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME:$VERSION .
     # - docker tag $REGISTRY_URL/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME:$VERSION $REGISTRY_URL/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME:latest
     - cp ~/gcloud-service-key.json ~/.config/gcloud/application_default_credentials.json
@@ -38,6 +37,6 @@ deployment:
     branch: master
     # tag: /v[0-9]+(\.[0-9]+)*/
     commands:
-      - sudo gcloud docker push $REGISTRY_URL/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME
+      - sudo /opt/google-cloud-sdk/bin/gcloud docker push $REGISTRY_URL/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME
       - sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
       - kubectl patch --namespace=staging -f deployment.yml -p '{"spec":{"template":{"spec":{"containers":[{"name":"app","image":"'"$REGISTRY_URL"'/'"$PROJECT_NAME"'/'"$CIRCLE_PROJECT_REPONAME"':'"$VERSION"'"}]}}}}'
