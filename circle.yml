@@ -1,6 +1,6 @@
 dependencies:
   pre:
-    - echo 'export SOMETEST=blabla' > ${HOME}/.circlerc
+    - echo 'export SOMETEST=blabla' > ~/.circlerc
   override:
     - pwd
 test:
