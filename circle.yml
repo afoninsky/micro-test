@@ -8,6 +8,7 @@ machine:
     CLOUDSDK_COMPUTE_ZONE: us-central1-f
   services:
     - docker
+
 dependencies:
   pre:
     # pass variable between steps
