@@ -11,17 +11,16 @@ dependencies:
   pre:
     # spread variables to all commands
     - echo "export IMAGE_TAG=$REGISTRY_URL/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME:${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}" >> ~/.circlerc
-    - echo "export PATH=$PATH:/opt/google-cloud-sdk/bin/" >> ~/.circlerc
   override:
     # auth docker with google registry, setup access to kubernetes
-    - sudo gcloud --quiet components update
-    - sudo gcloud --quiet components update kubectl
+    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
+    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update kubectl
     - echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ~/gcloud-service-key.json # GCLOUD_SERVICE_KEY = base64 <your-service-account.json>
-    - sudo gcloud auth activate-service-account --key-file ~/gcloud-service-key.json
-    - sudo gcloud config set project $PROJECT_NAME
-    - sudo gcloud config set container/cluster $CLUSTER_NAME
-    - sudo gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
-    - sudo gcloud container clusters get-credentials $CLUSTER_NAME
+    - sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ~/gcloud-service-key.json
+    - sudo /opt/google-cloud-sdk/bin/gcloud config set project $PROJECT_NAME
+    - sudo /opt/google-cloud-sdk/bin/gcloud config set container/cluster $CLUSTER_NAME
+    - sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
+    - sudo /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials $CLUSTER_NAME
     - docker build -t $IMAGE_TAG .
     - cp ~/gcloud-service-key.json ~/.config/gcloud/application_default_credentials.json
 
@@ -37,6 +36,6 @@ test:
 #     branch: master
 #     # tag: /v[0-9]+(\.[0-9]+)*/
 #     commands:
-#       - sudo gcloud docker push $IMAGE_TAG
+#       - sudo /opt/google-cloud-sdk/bin/gcloud docker push $IMAGE_TAG
 #       - sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
 #       - kubectl patch --namespace=staging -f deployment.yml -p '{"spec":{"template":{"spec":{"containers":[{"name":"app","image":"'"$IMAGE_TAG"'"}]}}}}'
