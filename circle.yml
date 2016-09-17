@@ -1,6 +1,6 @@
 dependencies:
   pre:
-    - echo "export VERSION=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}"
+    - echo "export VERSION=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}" > ~/.circlerc
   override:
     - pwd
 test:
