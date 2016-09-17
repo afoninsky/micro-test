@@ -1,6 +1,7 @@
 # GCLOUD_SERVICE_KEY = base64 <your-service-account.json>
 machine:
   environment:
+    # image will be pushed to: REGISTRY_URL/PROJECT_NAME/repository-name:[git tag or package.json version]
     REGISTRY_URL: us.gcr.io
     PROJECT_NAME: spair-api
     CLUSTER_NAME: edissons-cluster
@@ -10,7 +11,8 @@ machine:
 dependencies:
   pre:
     # pass variable between steps
-    - echo "export VERSION=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}" > ~/.circlerc
+    - echo "export VERSION=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}" >> ~/.circlerc
+    - echo "export GCLOUD_SERVICE_KEY=$GCLOUD_SERVICE_KEY" >> ~/.circlerc
   override:
     # auth docker with google registry, setup access to kubernetes
     - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
