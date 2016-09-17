@@ -8,13 +8,13 @@ const info = Object.assign(ld.pick(require('../package'), ['name', 'version']), 
 
 const app = new Koa()
 
-app.use(async () => {
-  const { method, url } = this
+app.use(async ctx => {
+  const { method, url } = ctx
   if (method !== 'GET') { return }
 
   switch (url) {
     case '/_ah/health':
-      this.body = info
+      ctx.body = info
   }
 })
 
