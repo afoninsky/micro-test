@@ -1,7 +1,5 @@
-# GCLOUD_SERVICE_KEY = base64 <your-service-account.json>
 machine:
   environment:
-    # image will be pushed to: REGISTRY_URL/PROJECT_NAME/repository-name:[git tag or package.json version]
     REGISTRY_URL: us.gcr.io
     PROJECT_NAME: spair-api
     CLUSTER_NAME: edissons-cluster
@@ -11,34 +9,34 @@ machine:
 
 dependencies:
   pre:
-    # pass variable between steps
-    - echo "export VERSION=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}" >> ~/.circlerc
-    # - echo "export IMAGE_TAG=$GCLOUD_SERVICE_KEY" >> ~/.circlerc
+    # pass image tag between build steps
+    - echo "export IMAGE_TAG=$REGISTRY_URL/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME:${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}" >> ~/.circlerc
+    - echo "export PATH=$PATH;/opt/google-cloud-sdk/bin/" >> ~/.circlerc
   override:
     # auth docker with google registry, setup access to kubernetes
-    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
-    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update kubectl
-    - echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
-    - sudo /opt/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
-    - sudo /opt/google-cloud-sdk/bin/gcloud config set project $PROJECT_NAME
-    - sudo /opt/google-cloud-sdk/bin/gcloud config set container/cluster $CLUSTER_NAME
-    - sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
-    - sudo /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials $CLUSTER_NAME
-    - docker build -t $REGISTRY_URL/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME:$VERSION .
-    - cp ${HOME}/gcloud-service-key.json ${HOME}/.config/gcloud/application_default_credentials.json
+    - sudo gcloud --quiet components update
+    - sudo gcloud --quiet components update kubectl
+    - echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ~/gcloud-service-key.json # GCLOUD_SERVICE_KEY = base64 <your-service-account.json>
+    - sudo gcloud auth activate-service-account --key-file ~/gcloud-service-key.json
+    - sudo gcloud config set project $PROJECT_NAME
+    - sudo gcloud config set container/cluster $CLUSTER_NAME
+    - sudo gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
+    - sudo gcloud container clusters get-credentials $CLUSTER_NAME
+    - docker build -t $IMAGE_TAG .
+    - cp ~/gcloud-service-key.json ~/.config/gcloud/application_default_credentials.json
 
 test:
   pre:
     - mkdir -p $CIRCLE_ARTIFACTS/coverage
   override:
     # run tests and push coverage report to artifacts so circleci can display its
-    - docker run -v $CIRCLE_ARTIFACTS/coverage:/usr/src/app/coverage $REGISTRY_URL/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME:$VERSION bash -c "npm test && ./node_modules/.bin/nyc report --reporter clover"
+    - docker run -v $CIRCLE_ARTIFACTS/coverage:/usr/src/app/coverage $IMAGE_TAG bash -c "npm test && ./node_modules/.bin/nyc report --reporter clover"
 
 # deployment:
 #   production:
 #     branch: master
 #     # tag: /v[0-9]+(\.[0-9]+)*/
 #     commands:
-#       - sudo /opt/google-cloud-sdk/bin/gcloud docker push us.gcr.io/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME
+#       - sudo gcloud docker push $IMAGE_TAG
 #       - sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
-#       - kubectl patch --namespace=staging -f deployment.yml -p '{"spec":{"template":{"spec":{"containers":[{"name":"app","image":"'"REGISTRY_URL"'/'"$PROJECT_NAME"'/'"$CIRCLE_PROJECT_REPONAME"':'"$VERSION"'"}]}}}}'
+#       - kubectl patch --namespace=staging -f deployment.yml -p '{"spec":{"template":{"spec":{"containers":[{"name":"app","image":"'"$IMAGE_TAG"'"}]}}}}'
