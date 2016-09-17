@@ -9,9 +9,9 @@ machine:
 
 dependencies:
   pre:
-    # pass image tag between build steps
+    # spread variables to all commands
     - echo "export IMAGE_TAG=$REGISTRY_URL/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME:${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}" >> ~/.circlerc
-    - echo "export PATH=$PATH;/opt/google-cloud-sdk/bin/" >> ~/.circlerc
+    - echo "export PATH=$PATH:/opt/google-cloud-sdk/bin/" >> ~/.circlerc
   override:
     # auth docker with google registry, setup access to kubernetes
     - sudo gcloud --quiet components update
