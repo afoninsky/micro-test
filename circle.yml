@@ -1,6 +1,6 @@
 machine:
   environment:
-    VERSION: ${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}
+    VERSION: $(echo ${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`})
 dependencies:
   override:
     - echo test default var: $CIRCLE_SHA1, ${CIRCLE_SHA1}
