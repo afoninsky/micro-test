@@ -5,4 +5,4 @@ dependencies:
     - pwd
 test:
   override:
-    - echo $SOMETEST
+    - echo textbefore:$SOMETEST:textafter
