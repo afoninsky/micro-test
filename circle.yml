@@ -1,16 +1,18 @@
 machine:
   environment:
-    VERSION3: $(echo ${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`})
+    PKG_VERSION: $(jq -r '"v" + .version' package.json)
+    # VERSION3: $(echo ${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`})
 dependencies:
   override:
-    - echo $VERSION3
-    - echo ${VERSION3}
+    - echo $PKG_VERSION
+    - echo ${PKG_VERSION}
 test:
   override:
-    - export VERSION2=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}
-    - echo $VERSION2
-    - echo ${VERSION2}
-    - echo ${CIRCLE_TAG}
-    - echo `jq -r '"v" + .version' package.json`
-    - echo ${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}
-    - pwd
+    - echo $CIRCLE_TAG
+    # - export VERSION2=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}
+    # - echo $VERSION2
+    # - echo ${VERSION2}
+    # - echo ${CIRCLE_TAG}
+    # - echo `jq -r '"v" + .version' package.json`
+    # - echo ${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}
+    # - pwd
