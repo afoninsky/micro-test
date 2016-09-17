@@ -1,14 +1,16 @@
-# CIRCLE_TAG
-#
 # GCLOUD_SERVICE_KEY = base64 <your-service-account.json>
 machine:
   environment:
+    REGISTRY_URL: us.gcr.io
     PROJECT_NAME: spair-api
     CLUSTER_NAME: edissons-cluster
     CLOUDSDK_COMPUTE_ZONE: us-central1-f
   services:
     - docker
 dependencies:
+  pre:
+    # pass variable between steps
+    - echo "export VERSION=${CIRCLE_TAG:-`jq -r '"v" + .version' package.json`}" > ~/.circlerc
   override:
     # auth docker with google registry, setup access to kubernetes
     - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
@@ -19,8 +21,7 @@ dependencies:
     - sudo /opt/google-cloud-sdk/bin/gcloud config set container/cluster $CLUSTER_NAME
     - sudo /opt/google-cloud-sdk/bin/gcloud config set compute/zone $CLOUDSDK_COMPUTE_ZONE
     - sudo /opt/google-cloud-sdk/bin/gcloud container clusters get-credentials $CLUSTER_NAME
-    - docker build -t us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1 .
-    - docker tag us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1 us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:latest
+    - docker build -t $REGISTRY_URL/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME:$VERSION .
     - cp ${HOME}/gcloud-service-key.json ${HOME}/.config/gcloud/application_default_credentials.json
 
 test:
@@ -28,13 +29,13 @@ test:
     - mkdir -p $CIRCLE_ARTIFACTS/coverage
   override:
     # run tests and push coverage report to artifacts so circleci can display its
-    - docker run -v $CIRCLE_ARTIFACTS/coverage:/usr/src/app/coverage us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1 bash -c "npm test && ./node_modules/.bin/nyc report --reporter clover"
+    - docker run -v $CIRCLE_ARTIFACTS/coverage:/usr/src/app/coverage $REGISTRY_URL/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME:$VERSION bash -c "npm test && ./node_modules/.bin/nyc report --reporter clover"
 
-deployment:
-  production:
-    branch: master
-    # tag: /v[0-9]+(\.[0-9]+)*/
-    commands:
-      - sudo /opt/google-cloud-sdk/bin/gcloud docker push us.gcr.io/${PROJECT_NAME}/$CIRCLE_PROJECT_REPONAME
-      - sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
-      - kubectl patch --namespace=staging -f deployment.yml -p '{"spec":{"template":{"spec":{"containers":[{"name":"app","image":"us.gcr.io/'"$PROJECT_NAME"'/'"$CIRCLE_PROJECT_REPONAME"':'"$CIRCLE_SHA1"'"}]}}}}'
+# deployment:
+#   production:
+#     branch: master
+#     # tag: /v[0-9]+(\.[0-9]+)*/
+#     commands:
+#       - sudo /opt/google-cloud-sdk/bin/gcloud docker push us.gcr.io/$PROJECT_NAME/$CIRCLE_PROJECT_REPONAME
+#       - sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
+#       - kubectl patch --namespace=staging -f deployment.yml -p '{"spec":{"template":{"spec":{"containers":[{"name":"app","image":"'"REGISTRY_URL"'/'"$PROJECT_NAME"'/'"$CIRCLE_PROJECT_REPONAME"':'"$VERSION"'"}]}}}}'
