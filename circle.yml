@@ -1,10 +1,9 @@
-# general:
-#   branches:
-#     # ignore:
-#     #   - /^(?!master).*$/
-#     only:
-#       # - nonExistantBranch
-#       - master
+general:
+  branches:
+    ignore:
+      - /^(?!master).*$/
+#    only: # https://discuss.circleci.com/t/deploy-on-tag-not-running-please-help/5104/8
+#      - nonExistantBranch
 
 machine:
   environment:
@@ -15,11 +14,6 @@ machine:
     SERVICE_NAME: helloworld
   services:
     - docker
-
-checkout:
-  post:
-    - git fetch --tags && git tag
-    - echo $CIRCLE_TAG; echo $CIRCLE_BRANCH
 
 dependencies:
   pre:
