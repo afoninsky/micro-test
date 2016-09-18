@@ -21,7 +21,7 @@ kubectl create secret docker-registry google-docker-registry \
 
 ### release
 npm verison major|minor|path
-git push --all
+git push --tags
 ... whats goin on ...
 
 ### build badge
