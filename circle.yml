@@ -25,6 +25,7 @@ dependencies:
     - cp ~/gcloud-service-key.json ~/.config/gcloud/application_default_credentials.json
     # build docker image with service
     - docker build -t $IMAGE_TAG .
+
 test:
   pre:
     - mkdir -p $CIRCLE_ARTIFACTS/coverage
