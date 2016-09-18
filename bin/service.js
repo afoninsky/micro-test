@@ -1,13 +1,13 @@
 global.Promise = require('bluebird')
-const seneca = require('../src/seneca')
+require('../src/opbeat')
+
 const config = require('config')
+const seneca = require('../src/seneca')
 const Logger = require('../src/logger')
 const health = require('../src/health')
 
-require('../src/opbeat')
 
 const log = new Logger(config.log, require('../package'))
-
 health.listen(config.healthcheck.port)
 
 seneca
