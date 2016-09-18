@@ -1,9 +1,7 @@
 general:
   branches:
-    ignore:
-      - /^(?!notSuchBranch).*$/
-#    only: # https://discuss.circleci.com/t/deploy-on-tag-not-running-please-help/5104/8
-#      - nonExistantBranch
+    ignore: # https://discuss.circleci.com/t/deploy-on-tag-not-running-please-help/5104/8
+      - /^(?!noSuchBranch).*$/
 
 machine:
   environment:
@@ -44,8 +42,7 @@ test:
 
 deployment:
   staging:
-    # tag: /v[0-9]+(\.[0-9]+)*/
-    tag: /.*/
+    tag: /v[0-9]+(\.[0-9]+)*/
     commands:
       - sudo /opt/google-cloud-sdk/bin/gcloud docker push $IMAGE_TAG
       - sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
