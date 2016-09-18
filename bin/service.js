@@ -1,17 +1,17 @@
-require('babel-core/register')
-require('../src/opbeat')
-require('../src/health')
-
+global.Promise = require('bluebird')
+const seneca = require('../src/seneca')
 const config = require('config')
-const { createSenecaLogger } = require('../src/utils')
+const Logger = require('../src/logger')
+const health = require('../src/health')
 
-const seneca = require('seneca')({
-	legacy: {
-		logging: false
-	}
-})
+require('../src/opbeat')
+
+const log = new Logger(config.log, require('../package'))
+
+health.listen(config.healthcheck.port)
 
 seneca
-	.use(createSenecaLogger(config.log, require('../package')))
-	.use('../src/microservice', config.microservice)
-	.listen(config.listen.port)
+  .use('../src/plugins/test')
+  .listen(config.listen.port)
+
+log.info('Service started')

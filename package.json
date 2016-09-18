@@ -1,18 +1,19 @@
 {
   "name": "micro-test",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "test",
   "main": "index.js",
   "scripts": {
     "start": "node bin/service",
-    "test": "eslint src && nyc ava --verbose && nyc check-coverage --lines 80 --functions 80 --branches 80",
-    "test:coverage": "nyc report --reporter=html && open coverage/index.html",
-    "update:deps": "npm-check -u"
+    "test": "eslint src && nyc ava && nyc check-coverage --lines 90 --functions 80 --branches 60",
+    "open:coverage": "nyc report --reporter=html && open coverage/index.html",
+    "dep:update": "npm-check -u"
   },
   "author": "Afoninsky / vkfont@gmail.com",
   "license": "ISC",
   "devDependencies": {
     "ava": "*",
+    "axios": "*",
     "babel-eslint": "*",
     "eslint": "*",
     "nyc": "*"
@@ -30,9 +31,23 @@
     "koa": "^2.0.0-alpha.6",
     "lodash": "^4.14.1",
     "opbeat": "^3.15.0",
-    "seneca": "^3.0.0"
+    "seneca": "^3.1.0"
   },
   "peerDependencies": {
     "npm-check": "*"
+  },
+  "ava": {
+    "verbose": true,
+    "source": [
+      "units/*js"
+    ],
+    "require": [
+      "./test/_preload.js"
+    ]
+  },
+  "nyc": {
+    "include": [
+      "src/*.js"
+    ]
   }
 }

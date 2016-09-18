@@ -12,6 +12,5 @@ module.exports = {
   },
   log: {
     stdout: { level: 'info' }
-  },
-  microservice: {}
+  }
 }

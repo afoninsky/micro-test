@@ -1,4 +1,3 @@
-const config = require('config')
 const Koa = require('koa')
 const ld = require('lodash')
 
@@ -18,4 +17,4 @@ app.use(async ctx => {
   }
 })
 
-module.exports = app.listen(config.healthcheck.port)
+module.exports = app

@@ -16,10 +16,11 @@ function serializeError(err) {
 }
 
 function serializeResponse(res) {
+  const headers = res.header || res.headers
   const ret = {
-    id: res.header['x-request-id'],
+    id: headers['x-request-id'],
     status: res.status,
-    time: parseInt(res.header['x-response-time'], 10)
+    time: parseInt(headers['x-response-time'], 10)
   }
   if (process.env.NODE_ENV !== 'production') {
     ret.body = res.body
