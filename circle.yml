@@ -3,7 +3,8 @@ general:
     # ignore:
     #   - /^(?!master).*$/
     only:
-      - nonExistantBranch
+      # - nonExistantBranch
+      - master
 
 machine:
   environment:
