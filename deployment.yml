@@ -27,6 +27,17 @@ spec:
             port: 8081
           initialDelaySeconds: 10
           timeoutSeconds: 1
+        # lifecycle:
+        #   postStart:
+        #     exec:
+        #       command:
+        #         - some
+        #         - items
+        #   preStop:
+        #     exec:
+        #       command:
+        #         - some
+        #         - items
         command:
           - npm
           - start

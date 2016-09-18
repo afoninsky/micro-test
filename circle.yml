@@ -1,7 +1,7 @@
 general:
   branches:
-    only:
-      - master
+    ignore:
+      - /^(?!master).*$/
 
 machine:
   environment:
@@ -32,15 +32,16 @@ dependencies:
     - docker build -t $IMAGE_TAG .
 
 test:
-  pre:
-    - mkdir -p $CIRCLE_ARTIFACTS/coverage
   override:
+    - echo $CIRCLE_TAG
     # run tests and push coverage report to artifacts so circleci can display it
-    - docker run -v $CIRCLE_ARTIFACTS/coverage:/usr/src/app/coverage $IMAGE_TAG bash -c "npm test && ./node_modules/.bin/nyc report --reporter html"
+    # secutiry issue: coverage reports can show your code to unauthorized users
+    # - mkdir -p $CIRCLE_ARTIFACTS/coverage
+    # - docker run -v $CIRCLE_ARTIFACTS/coverage:/usr/src/app/coverage $IMAGE_TAG bash -c "npm test && ./node_modules/.bin/nyc report --reporter html"
+    - docker run $IMAGE_TAG npm test
 
 deployment:
   staging:
-    # branch: master
     tag: /v[0-9]+(\.[0-9]+)*/
     commands:
       - sudo /opt/google-cloud-sdk/bin/gcloud docker push $IMAGE_TAG

@@ -1,4 +1,7 @@
 ### [circleci] create test deployment
+warn about insecure
+
+### [circleci] create test deployment
 kubectl create namespace staging
 kubectl apply -f deployment.yml --namespace=staging
 
@@ -16,22 +19,11 @@ kubectl create secret docker-registry google-docker-registry \
  --docker-password=$(cat /Users/drago/Desktop/edissons-admin-credentials.json)
 - add ImagePullSecret to service account (http://kubernetes.io/docs/user-guide/service-accounts/)
 
+### release
+npm verison major|minor|path
+git push --all
+... whats goin on ...
 
-
-# -----
-
-1) https://circleci.com/docs/status-badges/
-
-2) put coverage into build, something like:
-mkdir -p $CIRCLE_ARTIFACTS/coverage
-docker run -v $CIRCLE_ARTIFACTS/coverage:/usr/src/app/coverage test npm test && ./node_modules/.bin/nyc report --reporter clover
-
-3) request build remotely
-curl \
-  --header "Content-Type: application/json" \
-  --data '{"build_parameters": {"param1": "value1", "param2": 500}}' \
-  --request POST \
-  https://circleci.com/api/v1/project/circleci/mongofinil/tree/master?circle-token=$CIRCLE_TOKEN
-
-export param1="value1"
-export param2="500"
+### build badge
+https://circleci.com/docs/status-badges/
+[![CircleCI](https://circleci.com/gh/afoninsky/micro-test.svg?style=shield&circle-token=43393d70d9388a7820349593a9702bf480e97d22)](https://circleci.com/gh/afoninsky/micro-test)
