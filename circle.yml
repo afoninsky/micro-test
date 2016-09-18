@@ -52,7 +52,6 @@ deployment:
   staging:
     # tag: /v[0-9]+(\.[0-9]+)*/
     tag: /.*/
-    # owner: afoninsky
     commands:
       - sudo /opt/google-cloud-sdk/bin/gcloud docker push $IMAGE_TAG
       - sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
