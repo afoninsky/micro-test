@@ -1,7 +1,7 @@
 general:
   branches:
     ignore:
-      - /^(?!master).*$/
+      - /^(?!notSuchBranch).*$/
 #    only: # https://discuss.circleci.com/t/deploy-on-tag-not-running-please-help/5104/8
 #      - nonExistantBranch
 
