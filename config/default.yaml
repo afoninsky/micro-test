@@ -1,0 +1,9 @@
+logLevel: info
+listen:
+  port: 8080
+health:
+  port: 8081
+opbeat:
+  fill: later
+example:
+  some: config

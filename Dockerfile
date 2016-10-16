@@ -1,9 +1,14 @@
-FROM node:slim
+FROM mhart/alpine-node:6.7.0
 
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+RUN adduser -S nodejs
+USER nodejs
 
-COPY package.json /usr/src/app/
-RUN npm install
+RUN mkdir -p /home/nodejs/app
+WORKDIR /home/nodejs/app
+
+COPY package.json /home/nodejs/app/
+RUN npm install --production
 RUN npm dedupe
-COPY . /usr/src/app
+COPY . /home/nodejs/app
+
+CMD ["npm", "start"]

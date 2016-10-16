@@ -1,11 +1,12 @@
+# http://eslint.org/docs/rules/
 {
-  "parser": "babel-eslint",
   "extends": ["eslint:recommended"],
   "env": {
     "node": true,
     "es6": true
   },
   "rules": {
+    "complexity": ["error", 10],
     "no-debugger": 0,
     "no-console": 0,
     "new-cap": 0,
