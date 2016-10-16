@@ -1,0 +1,3 @@
+htpasswd -c kubernetes/passwords.txt user
+kubectl create configmap micro-test-config --from-file=config
+kubectl create secret generic micro-test-auth --from-file=kubernetes/passwords.txt

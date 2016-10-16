@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: micro-test
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        component: microservice
+        name: micro-test
+    spec:
+      containers:
+      - name: service
+        # image: us.gcr.io/spair-api/fulldive-api:v2.23.1
+        image: nginx
+        env:
+          - name: NODE_CONFIG_DIR
+            value: /etc/microservice
+        ports:
+        - containerPort: 8080
+          name: transport-port
+          protocol: TCP
+        - containerPort: 8081
+          name: health-port
+          protocol: TCP
+        volumeMounts:
+        - name: config
+          mountPath: /etc/microservice
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: health-port
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+        command:
+          - npm
+          - start
+      volumes:
+        - name: config
+          configMap:
+            name: micro-test-config

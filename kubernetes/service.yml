@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-test
+spec:
+  selector:
+    component: microservice
+    name: micro-test
+  ports:
+    - port: 8080
+      protocol: TCP
