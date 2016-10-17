@@ -9,6 +9,28 @@ spec:
       labels:
         component: microservice
         name: micro-test
+      annotations:
+        scheduler.alpha.kubernetes.io/affinity: >
+          {
+            "podAntiAffinity": {
+              "preferredDuringSchedulingIgnoredDuringExecution": [
+                {
+                  "weight": 1,
+                  "namespaces": null,
+                  "labelSelector": {
+                    "matchExpressions": [
+                      {
+                        "key": "name",
+                        "operator": "In",
+                        "values": ["micro-test"]
+                      }
+                    ]
+                  },
+                  "topologyKey": "kubernetes.io/hostname"
+                }
+              ]
+            }
+          }
     spec:
       containers:
       - name: service
@@ -18,10 +40,10 @@ spec:
           - name: NODE_CONFIG_DIR
             value: /etc/microservice
         ports:
-        - containerPort: 8080
+        - containerPort: 8081
           name: transport-port
           protocol: TCP
-        - containerPort: 8081
+        - containerPort: 8080
           name: health-port
           protocol: TCP
         volumeMounts:
@@ -29,7 +51,7 @@ spec:
           mountPath: /etc/microservice
         livenessProbe:
           httpGet:
-            path: /healthz
+            path: /_ah/health
             port: health-port
           initialDelaySeconds: 10
           timeoutSeconds: 1
