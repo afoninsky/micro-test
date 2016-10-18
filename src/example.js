@@ -7,7 +7,7 @@ module.exports = {
 
   routes: route,
 
-  preload: (seneca, config) => {
+  init: (seneca, config) => {
     seneca.logger.info('`config.example` value:', config)
     return Promise.resolve()
   },

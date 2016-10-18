@@ -1,9 +1,10 @@
 logLevel: info
-listen:
+tranport:
+  type: http
   port: 8081
 health:
   port: 8080
-opbeat:
-  fill: later
+mongodb:
+  mongoUrl: 'mongodb://localhost'
 example:
   some: config

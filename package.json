@@ -2,9 +2,8 @@
   "name": "micro-test",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "start": "node bin/service",
+    "start": "seneca-launcher",
     "test": "eslint src && nyc ava && nyc check-coverage --lines 90 --functions 80 --branches 60",
     "coverage": "nyc report --reporter=html && open coverage/index.html"
   },
@@ -22,12 +21,10 @@
     "ava": "^0.16.0",
     "coveralls": "^2.11.14",
     "eslint": "^3.8.0",
-    "nyc": "^8.3.1"
+    "nyc": "^8.3.1",
+    "seneca-extended": "^1.1.10"
   },
   "dependencies": {
-    "js-yaml": "^3.6.1",
-    "koa": "^2.0.0-alpha.6",
-    "opbeat": "^3.19.1",
-    "seneca-extended": "^1.1.10"
+    "seneca-launcher": "^1.0.0"
   }
 }

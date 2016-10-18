@@ -3,11 +3,10 @@ const { test } = require('ava')
 const seneca = require('seneca-extended')({
   logLevel: 'info'
 })
-const example = require(`${process.env.PWD}/src/seneca/example`)
+const example = require(`${process.env.PWD}/src/example`)
 
 test.before(async () => {
-  await example.preload(seneca, { custom: 'config' })
-  seneca.use(example.seneca)
+  await seneca.useAsync(example, { custom: 'config' })
 })
 
 test('test echo', async t => {
